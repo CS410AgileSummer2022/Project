@@ -6,3 +6,5 @@ username = input("Username: ")
 password = getpass("Password: ")
 
 sftp = pysftp.Connection(address, username=username, password=password)
+
+sftp.close()
