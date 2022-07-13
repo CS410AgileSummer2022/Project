@@ -1,19 +1,23 @@
-#install pytest to use import
+# install pytest to use import
 import pytest
-#Looking into python mock library
 
-#Testing make Directory from main.
+# Looking into python mock library
+
+# Testing make Directory from main.
 def test_makeDir():
     pass
 
-#Testing print Remote Working Directory
+
+# Testing print Remote Working Directory
 def test_printRemoteWorkingDirectory():
     pass
 
-#Testing Print Remote Directory
+
+# Testing Print Remote Directory
 def test_printRemoteDirectory():
     pass
 
-#Testing Main
+
+# Testing Main
 def test_main():
     pass
