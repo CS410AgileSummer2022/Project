@@ -38,11 +38,28 @@ def login(address, username, password):
     # Set a current working directory directly succeeding connection to remote host (works for linux.cs.pdx.edu)
     sftp.cwd(f"/u/{username}")
     return sftp
- 
+
+# Get file from remote server
+def getFile(sftp, path, dest):
+    if(sftp.isfile(path)):
+        #checks if the last character of the destination is a \
+        if(dest[-1] == "\\"):
+            #gets the last thing in the path after the \
+            lastInPath = path.split("\\")[-1]
+        else:
+            #if there is no \ adds one to the dest string
+            dest = dest+"\\"
+            lastInPath = path.split("\\")[-1]
+        dest = dest+lastInPath
+        sftp.get(path, dest)
+        print("Success!")
+    else:
+        print("Specified path is not a file.")
+
 def menuLoop(sftp, local):
     quitLoop = False
     while not quitLoop:
-        opt = input("\nWhat do you want to do?\n(login / logoff / mkdir / ls r / ls l / quit)\n")
+        opt = input("\nWhat do you want to do?\n(login / logoff / mkdir / ls r / ls l / get / quit)\n")
         match opt:
             case "login":
                 address = input("Enter server address: ")
@@ -61,6 +78,10 @@ def menuLoop(sftp, local):
             case "ls l":
                 localPath = input("Specify Local Path: ")
                 local.printLocalDirectory(localPath)
+            case "get":
+                path = input("Specify file path: ")
+                dest = input("Specify destination path: ")
+                getFile(sftp, path, dest)
             case "quit":
                 if sftp is not None: 
                     sftp.close()
