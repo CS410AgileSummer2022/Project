@@ -41,16 +41,21 @@ def login(address, username, password):
 
 # Get file from remote server
 def getFile(sftp, path, dest):
+    dest = dest.replace('\\', '/')
     if(sftp.isfile(path)):
         #checks if the last character of the destination is a \
-        if(dest[-1] == "\\"):
-            #gets the last thing in the path after the \
-            lastInPath = path.split("\\")[-1]
-        else:
-            #if there is no \ adds one to the dest string
-            dest = dest+"\\"
-            lastInPath = path.split("\\")[-1]
-        dest = dest+lastInPath
+        if(dest[-1] != "/"):
+            dest = dest+"/"
+
+        #check if the destination exists
+        if(os.path.exists(dest) == False):
+            print("Destination path does not exist.")
+            return
+
+        #appends the file name to the destination path
+        dest = dest+path.split("/")[-1]
+
+        #download the file
         sftp.get(path, dest)
         print("Success!")
     else:
