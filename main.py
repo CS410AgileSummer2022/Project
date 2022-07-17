@@ -1,3 +1,4 @@
+from types import NoneType
 import pysftp #Make sure to run "pip install pysftp" in terminal
 from getpass import getpass #for making password input protected
 import os
@@ -27,35 +28,74 @@ def printRemoteDirectory(sftp, path):
     for item in dirContents:
         print(item)
 
-
-def main():
-    local = Local()
-    localPath = input("Specify Local Path: ")
-    local.printLocalDirectory(localPath)
-
-    address = input("Enter server address: ")
-    username = input("Username: ")
-    password = getpass("Password: ")
-
+def login(address, username, password):
     # 'Fixes' known bug with pysftp where no hostkey is found for remote server. 
     # See https://stackoverflow.com/questions/53864260/no-hostkey-for-host-found-when-connecting-to-sftp-server-with-pysftp-usi
     cnopts = pysftp.CnOpts()
     cnopts.hostkeys = None
 
     sftp = pysftp.Connection(address, username=username, password=password, cnopts=cnopts)
-    
     # Set a current working directory directly succeeding connection to remote host (works for linux.cs.pdx.edu)
     sftp.cwd(f"/u/{username}")
+    return sftp
 
-    printRemoteWorkingDirectory(sftp)
+# Get file from remote server
+def getFile(sftp, path, dest):
+    dest = dest.replace('\\', '/')
+    if(sftp.isfile(path)):
+        #checks if the last character of the destination is a \
+        if(dest[-1] != "/"):
+            dest = dest+"/"
 
-    remotePath = input("Specify Remote Path: ")
-    printRemoteDirectory(sftp, remotePath)
+        #check if the destination exists
+        if(os.path.exists(dest) == False):
+            print("Destination path does not exist.")
+            return
 
-    dirName = input("Please enter a directory name: ")
-    makeDir(sftp, dirName)
+        #appends the file name to the destination path
+        dest = dest+path.split("/")[-1]
 
-    sftp.close()
+        #download the file
+        sftp.get(path, dest)
+        print("Success!")
+    else:
+        print("Specified path is not a file.")
+
+def menuLoop(sftp, local):
+    quitLoop = False
+    while not quitLoop:
+        opt = input("\nWhat do you want to do?\n(login / logoff / mkdir / ls r / ls l / get / quit)\n")
+        match opt:
+            case "login":
+                address = input("Enter server address: ")
+                username = input("Username: ")
+                password = getpass("Password: ")
+                sftp = login(address, username, password)
+                printRemoteWorkingDirectory(sftp)
+            case "logoff":
+                sftp.close()
+            case "mkdir":
+                dirName = input("Please enter a directory name: ")
+                makeDir(sftp, dirName)
+            case "ls r":
+                remotePath = input("Specify Remote Path: ")
+                printRemoteDirectory(sftp, remotePath)
+            case "ls l":
+                localPath = input("Specify Local Path: ")
+                local.printLocalDirectory(localPath)
+            case "get":
+                path = input("Specify file path: ")
+                dest = input("Specify destination path: ")
+                getFile(sftp, path, dest)
+            case "quit":
+                if sftp is not None: 
+                    sftp.close()
+                quitLoop = True
+
+def main():
+    local = Local()
+    sftp = NoneType
+    menuLoop(sftp, local)
 
 
 if __name__ == "__main__":
