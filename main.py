@@ -2,6 +2,9 @@ from types import NoneType
 import pysftp #Make sure to run "pip install pysftp" in terminal
 from getpass import getpass #for making password input protected
 import os
+#import tkinter as tk
+#from tkinter import *
+#from tkinter import tkk
 
 
 class Local:
