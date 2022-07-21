@@ -1,9 +1,10 @@
 from importlib.resources import path
 from types import NoneType
-import pysftp #Make sure to run "pip install pysftp" in terminal
-from getpass import getpass #for making password input protected
-import os
-from stat import S_ISDIR, S_ISREG
+import pysftp                               # Make sure to run "pip install pysftp" in terminal
+from getpass import getpass                 # For making password input protected
+import os                                   # Utils for native OS
+from stat import S_ISDIR, S_ISREG           # Needed for making get_r portable
+import re                                   # Python Regex
 
 class Local:
     def printLocalDirectory(self, path):
@@ -21,7 +22,6 @@ def makeDir(sftp, dirName):
 def printRemoteWorkingDirectory(sftp):
     workingDirectory = sftp.getcwd()
     print(f"cwd: {workingDirectory}")
-
 
 # Print the contents of a directory on the remote host from the specified path
 def printRemoteDirectory(sftp, path):
@@ -68,6 +68,25 @@ def getFile(sftp, path, dest):
 
     else:
         print("Specified path is not a file.")
+ 
+# change the perms on the remote server
+def chmod(sftp, path):
+    # check if the remote path exists
+    if(sftp.lexists(path) == False):
+        print("Remote path does not exist!")
+        return
+
+    reg = re.compile('[0-7]+')                  # regex to match for octal strings
+    mode = input("Please enter octal code: ")   # capture the user input
+    match = reg.match(mode)                     # compare the input string to the octal regex
+    
+    # ensures that the match is consitent across the whole string
+    if(match.start() == 0 and match.end() == len(mode)):
+        sftp.chmod(path, mode)
+        return
+    else:
+        print("Not a valid octal code!")
+        return
 
 # Fixes recursive download issues for different Operating Systems
 def get_r_portable(sftp, remotedir, localdir, preserve_mtime=False):
@@ -109,6 +128,9 @@ def menuLoop(sftp, local):
             case "mkdir":
                 dirName = input("Please enter a directory name: ")
                 makeDir(sftp, dirName)
+            case "chmod":
+                remotePath = input("Specify Remote Path: ")
+                chmod(sftp, remotePath)
             case "ls r":
                 remotePath = input("Specify Remote Path: ")
                 printRemoteDirectory(sftp, remotePath)
