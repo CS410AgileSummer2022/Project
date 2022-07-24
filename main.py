@@ -6,17 +6,23 @@ import os                                   # Utils for native OS
 from stat import S_ISDIR, S_ISREG           # Needed for making get_r portable
 import re                                   # Python Regex
 
-class Local:
-    def printLocalDirectory(self, path):
-        dir_list = os.listdir(path)
-        for item in dir_list:
-            print(item)
+# Print contents of a directory on local machine at specified path
+def printLocalDirectory(path):
+    dir_list = os.listdir(path)
+    for item in dir_list:
+        print(item)
 
+# Rename a file on local machine using full path to file and a new file name 
+def renameLocalFile(path_to_file):
+    old_file_name = os.path.basename(path_to_file)
+    new_file_name = input("New file name: ")
+    path_to_dir = os.path.dirname(path_to_file)
+    os.rename(f"{path_to_file}", f"{path_to_dir}\\{new_file_name}")
+    print(f"{old_file_name} has been successfully renamed to {new_file_name} in the local directory {path_to_dir}")
 
 def makeDir(sftp, dirName):
     sftp.mkdir(dirName)
     print(dirName + " has been made!")
-
 
 # Print the Current Working Directory in the remote host
 def printRemoteWorkingDirectory(sftp):
@@ -112,10 +118,10 @@ def getMultiple(sftp, paths, dest):
     for path in paths:
         getFile(sftp, path, dest)
 
-def menuLoop(sftp, local):
+def menuLoop(sftp):
     quitLoop = False
     while not quitLoop:
-        opt = input("\nWhat do you want to do?\n(login / logoff / mkdir / ls r / ls l / get / get m / quit)\n")
+        opt = input("\nWhat do you want to do?\n(login / logoff / mkdir / ls r / ls l / get / get m / mv l / quit)\n")
         match opt:
             case "login":
                 address = input("Enter server address: ")
@@ -136,7 +142,7 @@ def menuLoop(sftp, local):
                 printRemoteDirectory(sftp, remotePath)
             case "ls l":
                 localPath = input("Specify Local Path: ")
-                local.printLocalDirectory(localPath)
+                printLocalDirectory(localPath)
             case "get":
                 path = input("Specify file path: ")
                 dest = input("Specify destination path: ")
@@ -145,15 +151,17 @@ def menuLoop(sftp, local):
                 path = getMultipleList()
                 dest = input("Specify destination path: ")
                 getMultiple(sftp, path, dest)
+            case "mv l":
+                localPath = input("Specify full path to local file to rename: ")
+                renameLocalFile(localPath)
             case "quit":
                 if sftp is not None: 
                     sftp.close()
                 quitLoop = True
 
 def main():
-    local = Local()
     sftp = NoneType
-    menuLoop(sftp, local)
+    menuLoop(sftp)
 
 
 if __name__ == "__main__":
