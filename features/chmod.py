@@ -1,14 +1,13 @@
 import re
 
 # change the perms on the remote server
-def chmod(sftp, path):
+def chmod(sftp, path, mode):
     # check if the remote path exists
     if(sftp.lexists(path) == False):
         print("Remote path does not exist!")
         return
 
     reg = re.compile('[0-7]+')                  # regex to match for octal strings
-    mode = input("Please enter octal code: ")   # capture the user input
     match = reg.match(mode)                     # compare the input string to the octal regex
     
     # ensures that the match is consitent across the whole string
