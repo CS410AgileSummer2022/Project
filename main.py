@@ -17,12 +17,13 @@ def renameLocalFile(path_to_file):
     old_file_name = os.path.basename(path_to_file)
     new_file_name = input("New file name: ")
     path_to_dir = os.path.dirname(path_to_file)
-    os.rename(f"{path_to_file}", f"{path_to_dir}\\{new_file_name}")
+    os.rename(f"{path_to_file}", f"{path_to_dir}/{new_file_name}")
     print(f"{old_file_name} has been successfully renamed to {new_file_name} in the local directory {path_to_dir}")
 
 #Rename a file in the remote directory.
 def renameRemoteFile(sftp, path_to_file):
-    new_file_name = input("New remote file name: ")
+    workingDirectory = sftp.getcwd()
+
 
 
 def makeDir(sftp, dirName):
@@ -134,6 +135,9 @@ def menuLoop(sftp):
                 password = getpass("Password: ")
                 sftp = login(address, username, password)
                 printRemoteWorkingDirectory(sftp)
+            case "mv r":
+                remotePath = input("Specify full path to remote file to rename: ")
+                renameRemoteFile(sftp, remotePath)
             case "logoff":
                 sftp.close()
             case "mkdir":
@@ -163,7 +167,6 @@ def menuLoop(sftp):
                 if sftp is not None: 
                     sftp.close()
                 quitLoop = True
-
 def main():
     sftp = NoneType
     menuLoop(sftp)
