@@ -22,10 +22,18 @@ def renameLocalFile(path_to_file):
 
 #Rename a file in the remote directory.
 def renameRemoteFile(sftp, path_to_file):
-    workingDirectory = sftp.getcwd()
-
-
-
+    path_to_dir = os.path.dirname(path_to_file)
+    #Change the current working directory to the path given.
+    sftp.cwd(path_to_dir)
+    old_file_name = os.path.basename(path_to_file)
+    if sftp.isfile(old_file_name):
+        new_file_name = input("New remote file name: ")
+        sftp.rename(f"{path_to_dir}/{old_file_name}", f"{path_to_dir}/{new_file_name}")
+        print(f"{old_file_name} has been successfully renamed to {new_file_name} in the remote directory {path_to_dir}")
+    else:
+        print("No such file exists in the remote directory.")
+    
+    
 def makeDir(sftp, dirName):
     sftp.mkdir(dirName)
     print(dirName + " has been made!")
