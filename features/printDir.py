@@ -16,3 +16,4 @@ def printRemoteDirectory(sftp, path):
 def printRemoteWorkingDirectory(sftp):
     workingDirectory = sftp.getcwd()
     print(f"cwd: {workingDirectory}")
+    return True
