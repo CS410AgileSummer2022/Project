@@ -1,167 +1,120 @@
-from importlib.resources import path
 from types import NoneType
-import pysftp                               # Make sure to run "pip install pysftp" in terminal
-from getpass import getpass                 # For making password input protected
-import os                                   # Utils for native OS
-from stat import S_ISDIR, S_ISREG           # Needed for making get_r portable
-import re                                   # Python Regex
+from features import SFTP
 
-# Print contents of a directory on local machine at specified path
-def printLocalDirectory(path):
-    dir_list = os.listdir(path)
-    for item in dir_list:
-        print(item)
+client = SFTP()
 
-# Rename a file on local machine using full path to file and a new file name 
-def renameLocalFile(path_to_file):
-    old_file_name = os.path.basename(path_to_file)
-    new_file_name = input("New file name: ")
-    path_to_dir = os.path.dirname(path_to_file)
-    os.rename(f"{path_to_file}", f"{path_to_dir}\\{new_file_name}")
-    print(f"{old_file_name} has been successfully renamed to {new_file_name} in the local directory {path_to_dir}")
-
-def makeDir(sftp, dirName):
-    sftp.mkdir(dirName)
-    print(dirName + " has been made!")
-
-# Print the Current Working Directory in the remote host
-def printRemoteWorkingDirectory(sftp):
-    workingDirectory = sftp.getcwd()
-    print(f"cwd: {workingDirectory}")
-
-# Print the contents of a directory on the remote host from the specified path
-def printRemoteDirectory(sftp, path):
-    dirContents = sftp.listdir()
-    for item in dirContents:
-        print(item)
-
-def login(address, username, password):
-    # 'Fixes' known bug with pysftp where no hostkey is found for remote server. 
-    # See https://stackoverflow.com/questions/53864260/no-hostkey-for-host-found-when-connecting-to-sftp-server-with-pysftp-usi
-    cnopts = pysftp.CnOpts()
-    cnopts.hostkeys = None
-
-    sftp = pysftp.Connection(address, username=username, password=password, cnopts=cnopts)
-    # Set a current working directory directly succeeding connection to remote host (works for linux.cs.pdx.edu)
-    sftp.cwd(f"/u/{username}")
-    return sftp
-
-# Get file from remote server
-def getFile(sftp, path, dest):
-    dest = dest.replace('\\', '/')
-    #check if the destination exists
-    if(os.path.exists(dest) == False):
-        print("Destination path does not exist.")
-        return
-
-    #checks if the last character of the destination is a /
-    if(dest[-1] != "/"):
-        dest = dest+"/"
-
-    # if the path is a file, then only download one thing
-    if(sftp.isfile(path)):
-        #appends the file name to the destination path
-        dest = dest+path.split("/")[-1]
-
-        #download the file
-        sftp.get(path, dest)
-        print("Success!")
-
-    # if the path is a dir, then copy the whole dir
-    elif(sftp.isdir(path)):
-        get_r_portable(sftp, path, dest)
-        print("Success!")
-
-    else:
-        print("Specified path is not a file.")
- 
-# change the perms on the remote server
-def chmod(sftp, path):
-    # check if the remote path exists
-    if(sftp.lexists(path) == False):
-        print("Remote path does not exist!")
-        return
-
-    reg = re.compile('[0-7]+')                  # regex to match for octal strings
-    mode = input("Please enter octal code: ")   # capture the user input
-    match = reg.match(mode)                     # compare the input string to the octal regex
-    
-    # ensures that the match is consitent across the whole string
-    if(match.start() == 0 and match.end() == len(mode)):
-        sftp.chmod(path, mode)
-        return
-    else:
-        print("Not a valid octal code!")
-        return
-
-# Fixes recursive download issues for different Operating Systems
-def get_r_portable(sftp, remotedir, localdir, preserve_mtime=False):
-    for entry in sftp.listdir_attr(remotedir):
-        remotepath = remotedir + "/" + entry.filename
-        localpath = os.path.join(localdir, entry.filename)
-        mode = entry.st_mode
-        if S_ISDIR(mode):
-            try:
-                os.mkdir(localpath)
-            except OSError:     
-                pass
-            get_r_portable(sftp, remotepath, localpath, preserve_mtime)
-        elif S_ISREG(mode):
-            sftp.get(remotepath, localpath, preserve_mtime=preserve_mtime)
-
-def getMultipleList():
-    pathNames = input("Enter file names seperated by a space: ")
-    pathNames = pathNames.split(" ")
-    return pathNames
-
-def getMultiple(sftp, paths, dest):
-    for path in paths:
-        getFile(sftp, path, dest)
-
-def menuLoop(sftp):
+def menu(sftp):
     quitLoop = False
     while not quitLoop:
-        opt = input("\nWhat do you want to do?\n(login / logoff / mkdir / ls r / ls l / get / get m / mv l / quit)\n")
-        match opt:
+        commandString = input(">> ")
+        command = commandString.split()
+        commandLen = len(command)
+
+        match command[0]:
             case "login":
-                address = input("Enter server address: ")
-                username = input("Username: ")
-                password = getpass("Password: ")
-                sftp = login(address, username, password)
-                printRemoteWorkingDirectory(sftp)
+                if(commandLen > 1):
+                    sftp = client.login(command[1])
+                    client.printRemoteWorkingDirectory(sftp)
+                else:
+                    print("Please input a server address.")
+
             case "logoff":
                 sftp.close()
+                print("Connection closed.")
+
             case "mkdir":
-                dirName = input("Please enter a directory name: ")
-                makeDir(sftp, dirName)
+                if(commandLen > 1):
+                    client.makeDir(sftp, command[1])
+                else:
+                    print("Please input a directory name.")
+
             case "chmod":
-                remotePath = input("Specify Remote Path: ")
-                chmod(sftp, remotePath)
-            case "ls r":
-                remotePath = input("Specify Remote Path: ")
-                printRemoteDirectory(sftp, remotePath)
-            case "ls l":
-                localPath = input("Specify Local Path: ")
-                printLocalDirectory(localPath)
+                if(commandLen> 2):
+                    client.chmod(sftp, command[1], command[2])
+                elif(commandLen > 1):
+                    print("Please enter the octal permission.")
+                else:
+                    print("Please input the file path.")
+
+            case "ls":
+                # check if command had the -l flag for local
+                if(commandLen > 2):
+                    if("-l" in command):
+                        command = command.remove("-l")
+                        commandLen = len(command)
+                        if(commandLen > 1):
+                            client.printLocalDirectory(command[1])
+                        else:
+                            client.printLocalDirectory(".")
+                    elif("-r" in command):
+                        command = command.remove("-r")
+                        commandLen = len(command)
+                        if(commandLen > 1):
+                            client.printRemoteDirectory(command[1])
+                        else:
+                            client.printRemoteDirectory(".")
+                else:
+                    # remove the flags from the string
+                    if(command is not None and "-l" in command):
+                        command = command.remove("-l")
+                    if(command is not None and "-r" in command):
+                        command = command.remove("-r")
+
+                    if(command is None):
+                        commandLen = 1
+                    else:
+                        commandLen = len(command)
+                        
+                    # if there is a path after removing the flags
+                    if(commandLen > 1):
+                        client.printLocalDirectory(command[1]) 
+                    # otherwise default to printing the local current dir
+                    else:
+                        client.printLocalDirectory(".")
+
             case "get":
-                path = input("Specify file path: ")
-                dest = input("Specify destination path: ")
-                getFile(sftp, path, dest)
-            case "get m":
-                path = getMultipleList()
-                dest = input("Specify destination path: ")
-                getMultiple(sftp, path, dest)
-            case "mv l":
-                localPath = input("Specify full path to local file to rename: ")
-                renameLocalFile(localPath)
+                # if we have the -m flag then we are getting multiple
+                if("-m" in command):
+                    command = command.remove("-m")
+                    commandLen = len(command)
+                    if(commandLen > 1):
+                        path = client.getMultipleList()
+                        client.getMultiple(sftp, path, command[1])
+                    else:
+                        print("Please specify a destination path.")
+                else:
+                    if(command > 3): 
+                        client.getFile(sftp, command[1], command[2])
+                    else:
+                        print("Please specify a source and destination path.")
+
+            case "mv":
+                if("-r" in command):
+                    command = command.remove("-r")
+                    commandLen = len(command)
+                    if(commandLen > 3):
+                        client.renameRemoteFile(command[1], command[2])
+                    else:
+                        print("Please enter the source and destination file names.")
+                else:
+                    if(commandLen > 3):
+                        client.renameLocalFile(command[1], command[2])
+                    else:
+                        print("Please enter the source and destination file names.")
+
             case "quit":
                 if sftp is not None: 
                     sftp.close()
                 quitLoop = True
 
+            case "help":
+                print("COMING SOON!")
+            case _:
+                print("Command not recognized, try \'help\' to see what commands are available.")
+
 def main():
     sftp = NoneType
-    menuLoop(sftp)
+    menu(sftp)
 
 
 if __name__ == "__main__":
