@@ -47,19 +47,21 @@ def menu(sftp):
 
                 commandLen = len(command)
                 if flag == "-l":
-                    if (commandLen == 2):
-                        client.printLocalDirectory(sftp, command[1])
-                    elif (commandLen == 1):
-                        client.printLocalDirectory(sftp, ".")
-                    else:
-                        print("ls takes two arguments.")
+                    match commandLen:
+                        case 2:
+                            client.printLocalDirectory(sftp, command[1])
+                        case 1:
+                            client.printLocalDirectory(sftp, ".")
+                        case _:
+                            print("ls takes two arguments.")
                 elif flag == "-r":
-                    if (commandLen == 2):
-                        client.printRemoteDirectory(sftp, command[1])
-                    elif (commandLen == 1):
-                        client.printRemoteDirectory(sftp, ".")
-                    else:
-                        print("ls takes two arguments.")
+                    match commandLen:
+                        case 2:
+                            client.printRemoteDirectory(sftp, command[1])
+                        case 1:
+                            client.printRemoteDirectory(sftp, ".")
+                        case _:
+                            print("ls takes two arguments.")
                 else:
                     print("Please specify a local or remote repository with -l or -r.")
 
