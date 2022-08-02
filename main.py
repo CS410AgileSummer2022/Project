@@ -47,7 +47,7 @@ def login(address, username, password):
     return sftp
 
 # Get file from remote server
-def getFile(sftp, path, dest):
+def getFile(sftp, src, dest):
     dest = dest.replace('\\', '/')
     #check if the destination exists
     if(os.path.exists(dest) == False):
@@ -66,15 +66,31 @@ def getFile(sftp, path, dest):
         #download the file
         sftp.get(path, dest)
         print("Success!")
-
     # if the path is a dir, then copy the whole dir
     elif(sftp.isdir(path)):
         get_r_portable(sftp, path, dest)
         print("Success!")
-
     else:
         print("Specified path is not a file.")
  
+# put a file onto the remote server
+def putFile(sftp, src, dest):
+    src = src.replace('\\', '/')
+    dest = dest.replace('\\', '/')
+    if os.path.exists(src) == False:
+        print("Source path does not exist.")
+        return
+
+    if sftp.isfile(dest):
+        sftp.put(src, dest)
+        print("Success!")
+    elif sftp.isdir(dest):
+        sftp.put_d(src, dest)
+        print("Success!")
+    else:
+        print("Destination path does not exist.")
+
+
 # change the perms on the remote server
 def chmod(sftp, path):
     # check if the remote path exists
@@ -118,6 +134,10 @@ def getMultiple(sftp, paths, dest):
     for path in paths:
         getFile(sftp, path, dest)
 
+def putMultiple(sftp, srcs, dest):
+    for src in srcs:
+        putFile(sftp, src, dest)
+
 def menuLoop(sftp):
     quitLoop = False
     while not quitLoop:
@@ -151,6 +171,14 @@ def menuLoop(sftp):
                 path = getMultipleList()
                 dest = input("Specify destination path: ")
                 getMultiple(sftp, path, dest)
+            case "put":
+                src = input("Specify file path: ")
+                dest = input("Specify destination path: ")
+                putFile(sftp, src, dest)
+            case "put m":
+                src = getMultipleList()
+                dest = input("Specify destination path: ")
+                getMultiple(sftp, src, dest)
             case "mv l":
                 localPath = input("Specify full path to local file to rename: ")
                 renameLocalFile(localPath)
