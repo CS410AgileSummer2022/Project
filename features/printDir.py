@@ -8,7 +8,7 @@ def printLocalDirectory(path):
 
 # Print the contents of a directory on the remote host from the specified path
 def printRemoteDirectory(sftp, path):
-    dirContents = sftp.listdir()
+    dirContents = sftp.listdir(path)
     for item in dirContents:
         print(item)
 
