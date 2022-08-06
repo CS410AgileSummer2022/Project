@@ -1,12 +1,13 @@
 from types import NoneType
 from features import SFTP
+import gui
 
 client = SFTP()
 
-def menu(sftp):
+def menu(sftp, GUI_command):
     quitLoop = False
     while not quitLoop:
-        commandString = input(">> ")
+        commandString = GUI_command
         command = commandString.split()
         commandLen = len(command)
 
@@ -112,10 +113,10 @@ def menu(sftp):
             case _:
                 print("Command not recognized, try \'help\' to see what commands are available.")
 
-def main():
+def main(self, GUI_command):
     sftp = NoneType
-    menu(sftp)
+    menu(sftp, GUI_command)
 
 
 if __name__ == "__main__":
-    main()
+     exec(open("gui.py").read())
