@@ -49,9 +49,9 @@ def menu(sftp):
                 if flag == "-l":
                     match commandLen:
                         case 2:
-                            client.printLocalDirectory(sftp, command[1])
+                            client.printLocalDirectory(command[1])
                         case 1:
-                            client.printLocalDirectory(sftp, ".")
+                            client.printLocalDirectory(".")
                         case _:
                             print("ls takes two arguments.")
                 elif flag == "-r":
