@@ -44,8 +44,8 @@ def menu(sftp):
                 elif ("-r" in command):
                     command.remove("-r")
                     flag = "-r"
-
                 commandLen = len(command)
+
                 if flag == "-l":
                     match commandLen:
                         case 2:
@@ -78,6 +78,27 @@ def menu(sftp):
                 else:
                     if(commandLen == 3): 
                         client.getFile(sftp, command[1], command[2])
+                    else:
+                        print("Please specify a source and destination path.")
+
+            case "put":
+                flag = None
+                if ("-m" in command):
+                    flag = "-m"
+                    command.remove("-m")
+                commandLen = len(command)
+                
+                if (flag == "-m"):
+                    if (commandLen == 1):
+                        files = client.getMultipleList()
+                        dest = input("Enter the destination path: ")
+                        client.putMultiple(sftp, files, dest)
+                    else:
+                        files = command[1:-1]
+                        client.putMultiple(sftp, files, command[-1])
+                else:
+                    if (commandLen == 3):
+                        client.putFile(sftp, command[1], command[2])
                     else:
                         print("Please specify a source and destination path.")
 
