@@ -1,6 +1,7 @@
 from types import NoneType
 from features import SFTP
-import gui
+import sys
+import features.gui as gui
 
 client = SFTP()
 
