@@ -15,10 +15,10 @@ window = Tk()
 window.geometry("851x486")
 window.configure(bg = "#343333")
 
-def button_click(GUI_command):
+"""def button_click(GUI_command):
     server.get()
     username.get()
-    password.get()
+    password.get()"""
 
 canvas = Canvas(
     window,

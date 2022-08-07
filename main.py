@@ -7,22 +7,20 @@ client = SFTP()
 def menu(sftp, GUI_command):
     quitLoop = False
     while not quitLoop:
-        commandString = GUI_command
-        command = commandString.split()
-        commandLen = len(command)
+        #commandString = GUI_command
+        #command = commandString.split()
+        #commandLen = len(command)
 
-        match command[0]:
+        match GUI_command:
             case "login":
-                if(commandLen > 1):
-                    sftp = client.login(command[1])
-                    client.printRemoteWorkingDirectory(sftp)
-                else:
-                    print("Please input a server address.")
-
+                sftp = client.login(gui.server.get(), gui.username.get(), gui.password.get())
+                client.printRemoteWorkingDirectory(sftp)
+                print("Log in successful!")
+                GUI_command = " "
             case "logoff":
                 sftp.close()
                 print("Connection closed.")
-
+'''
             case "mkdir":
                 if(commandLen > 1):
                     client.makeDir(sftp, command[1])
@@ -112,8 +110,8 @@ def menu(sftp, GUI_command):
                 print("COMING SOON!")
             case _:
                 print("Command not recognized, try \'help\' to see what commands are available.")
-
-def main(self, GUI_command):
+'''
+def main(GUI_command):
     sftp = NoneType
     menu(sftp, GUI_command)
 
