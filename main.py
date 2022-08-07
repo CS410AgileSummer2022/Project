@@ -47,7 +47,7 @@ def menu(sftp):
                         else:
                             client.printLocalDirectory(".")
                     elif("-r" in command):
-                        command = command.remove("-r")
+                        command.remove("-r")
                         commandLen = len(command)
                         if(commandLen > 1):
                             client.printRemoteDirectory(command[1])
@@ -56,9 +56,9 @@ def menu(sftp):
                 else:
                     # remove the flags from the string
                     if(command is not None and "-l" in command):
-                        command = command.remove("-l")
+                        command.remove("-l")
                     if(command is not None and "-r" in command):
-                        command = command.remove("-r")
+                        command.remove("-r")
 
                     if(command is None):
                         commandLen = 1
@@ -75,7 +75,7 @@ def menu(sftp):
             case "get":
                 # if we have the -m flag then we are getting multiple
                 if("-m" in command):
-                    command = command.remove("-m")
+                    command.remove("-m")
                     commandLen = len(command)
                     if(commandLen > 1):
                         path = client.getMultipleList()
@@ -90,7 +90,7 @@ def menu(sftp):
 
             case "mv":
                 if("-r" in command):
-                    command = command.remove("-r")
+                    command.remove("-r")
                     commandLen = len(command)
                     if(commandLen > 3):
                         client.renameRemoteFile(command[1], command[2])
