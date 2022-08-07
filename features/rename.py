@@ -9,7 +9,7 @@ def renameLocalFile(path_to_file, new_file_name):
     print(f"{old_file_name} has been successfully renamed to {new_file_name} in the local directory {path_to_dir}")
 
 def renameRemoteFile(sftp, path_to_file, new_file_name):
-    #Get only the name of the file.
+    #Get only the name of the file. Only using os to parse file path
     old_file_name = os.path.basename(path_to_file)
     #Get the directory without the file name.
     path_to_dir = os.path.dirname(path_to_file)

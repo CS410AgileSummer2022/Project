@@ -1,4 +1,4 @@
-from io import BytesIO
+import io
 
 def copyRemoteDir(sftp, source, destination):
     if not sftp.exists(source) or not sftp.exists(destination):
@@ -13,13 +13,9 @@ def copyRemoteDir(sftp, source, destination):
         print("Destination path is not a directory.")
         return
 
-    
     dirName = source.split("/")[-1]
-
     newDir = destination + "/" + dirName
-
     sftp.mkdir(newDir)
-    
     get_r_portable(sftp, source, newDir)
 
 
@@ -33,6 +29,8 @@ def get_r_portable(sftp, source, newDir):
             get_r_portable(sftp, sourceSubPath, newDirSubPath)
 
         elif sftp.isfile(sourceSubPath):
-            flo = BytesIO()
+            print("copying file")
+            flo = io.BytesIO()
             sftp.getfo(sourceSubPath, flo)
+            flo.seek(0)
             sftp.putfo(flo, newDirSubPath)
