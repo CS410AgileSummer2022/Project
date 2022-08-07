@@ -7,13 +7,36 @@ from pathlib import Path
 
 # from tkinter import *
 # Explicit imports to satisfy Flake8
-from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
+from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage, Label
 import main as m
 
 #Start GUI window.
 window = Tk()
 window.geometry("851x486")
 window.configure(bg = "#343333")
+
+def logout_error():
+    err = Label(
+        window, 
+        text="You have not logged in.",
+        fg='red',
+        font=("Arial BoldMT", 13 * -1)
+    )
+    err.place(
+        x=693.0,
+        y=60.0
+    )
+    window.after(2000, err.destroy)
+
+
+    '''canvas.create_text(
+            693.0,
+            70.0,
+            anchor="nw",
+            text="You have not logged in.",
+            fill="red",
+            font=("Arial BoldMT", 13 * -1)
+        )'''
 
 """def button_click(GUI_command):
     server.get()
