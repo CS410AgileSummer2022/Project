@@ -47,25 +47,28 @@ def menu(sftp):
                         else:
                             client.printLocalDirectory(".")
                     elif("-r" in command):
+                        if sftp == NoneType:
+                            print("Not logged into a remote server")
+                            continue
                         command.remove("-r")
                         commandLen = len(command)
                         if(commandLen > 1):
-                            client.printRemoteDirectory(command[1])
+                            client.printRemoteDirectory(sftp, command[1])
                         else:
-                            client.printRemoteDirectory(".")
+                            client.printRemoteDirectory(sftp, sftp.getcwd())
                 else:
-                    # remove the flags from the string
+                    # ls + a flag
                     if(command is not None and "-l" in command):
-                        command.remove("-l")
+                        client.printLocalDirectory(".")
+                        continue
                     if(command is not None and "-r" in command):
-                        command.remove("-r")
+                        if sftp == NoneType:
+                            print("Not logged into a remote server")
+                            continue
+                        client.printRemoteDirectory(sftp, sftp.getcwd())
+                        continue
 
-                    if(command is None):
-                        commandLen = 1
-                    else:
-                        commandLen = len(command)
-                        
-                    # if there is a path after removing the flags
+                    # ls + a path
                     if(commandLen > 1):
                         client.printLocalDirectory(command[1]) 
                     # otherwise default to printing the local current dir
