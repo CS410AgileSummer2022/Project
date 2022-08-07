@@ -80,7 +80,7 @@ def menu(sftp):
                     # ls + a path
                     if(commandLen > 1):
                         client.printLocalDirectory(command[1]) 
-                    # otherwise default to printing the local current dir
+                    # Otherwise default to printing the local current dir
                     else:
                         client.printLocalDirectory(".")
 
