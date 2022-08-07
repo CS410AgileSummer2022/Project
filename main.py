@@ -37,45 +37,38 @@ def menu(sftp):
                     print("Please input the file path.")
 
             case "ls":
-                # check if command had the -l flag for local
-                if(commandLen > 2):
-                    if("-l" in command):
-                        command = command.remove("-l")
-                        commandLen = len(command)
-                        if(commandLen > 1):
-                            client.printLocalDirectory(command[1])
-                        else:
-                            client.printLocalDirectory(".")
-                    elif("-r" in command):
-                        command = command.remove("-r")
-                        commandLen = len(command)
-                        if(commandLen > 1):
-                            client.printRemoteDirectory(command[1])
-                        else:
-                            client.printRemoteDirectory(".")
-                else:
-                    # remove the flags from the string
-                    if(command is not None and "-l" in command):
-                        command = command.remove("-l")
-                    if(command is not None and "-r" in command):
-                        command = command.remove("-r")
+                flag = None
+                if ("-l" in command): 
+                    command.remove("-l")
+                    flag = "-l"
+                elif ("-r" in command):
+                    command.remove("-r")
+                    flag = "-r"
 
-                    if(command is None):
-                        commandLen = 1
-                    else:
-                        commandLen = len(command)
-                        
-                    # if there is a path after removing the flags
-                    if(commandLen > 1):
-                        client.printLocalDirectory(command[1]) 
-                    # otherwise default to printing the local current dir
-                    else:
-                        client.printLocalDirectory(".")
+                commandLen = len(command)
+                if flag == "-l":
+                    match commandLen:
+                        case 2:
+                            client.printLocalDirectory(command[1])
+                        case 1:
+                            client.printLocalDirectory(".")
+                        case _:
+                            print("ls takes two arguments.")
+                elif flag == "-r":
+                    match commandLen:
+                        case 2:
+                            client.printRemoteDirectory(sftp, command[1])
+                        case 1:
+                            client.printRemoteDirectory(sftp, ".")
+                        case _:
+                            print("ls takes two arguments.")
+                else:
+                    print("Please specify a local or remote repository with -l or -r.")
 
             case "get":
                 # if we have the -m flag then we are getting multiple
                 if("-m" in command):
-                    command = command.remove("-m")
+                    command.remove("-m")
                     commandLen = len(command)
                     if(commandLen > 1):
                         path = client.getMultipleList()
@@ -83,14 +76,14 @@ def menu(sftp):
                     else:
                         print("Please specify a destination path.")
                 else:
-                    if(command > 3): 
+                    if(commandLen == 3): 
                         client.getFile(sftp, command[1], command[2])
                     else:
                         print("Please specify a source and destination path.")
 
             case "mv":
                 if("-r" in command):
-                    command = command.remove("-r")
+                    command.remove("-r")
                     commandLen = len(command)
                     if(commandLen > 3):
                         client.renameRemoteFile(command[1], command[2])
