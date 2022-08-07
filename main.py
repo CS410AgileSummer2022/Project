@@ -46,43 +46,33 @@ def menu(sftp):
                     print("Please input the file path.")
 
             case "ls":
-                # check if command had the -l flag for local
-                if(commandLen > 2):
-                    if("-l" in command):
-                        command.remove("-l")
-                        commandLen = len(command)
-                        if(commandLen > 1):
-                            client.printLocalDirectory(command[1])
-                        else:
-                            client.printLocalDirectory(".")
-                    elif("-r" in command):
-                        if sftp == NoneType:
-                            print("Not logged into a remote server")
-                            continue
-                        command.remove("-r")
-                        commandLen = len(command)
-                        if(commandLen > 1):
-                            client.printRemoteDirectory(sftp, command[1])
-                        else:
-                            client.printRemoteDirectory(sftp, sftp.getcwd())
-                else:
-                    # ls + a flag
-                    if(command is not None and "-l" in command):
-                        client.printLocalDirectory(".")
-                        continue
-                    if(command is not None and "-r" in command):
-                        if sftp == NoneType:
-                            print("Not logged into a remote server")
-                            continue
-                        client.printRemoteDirectory(sftp, sftp.getcwd())
-                        continue
+                flag = None
+                if ("-l" in command): 
+                    command.remove("-l")
+                    flag = "-l"
+                elif ("-r" in command):
+                    command.remove("-r")
+                    flag = "-r"
+                commandLen = len(command)
 
-                    # ls + a path
-                    if(commandLen > 1):
-                        client.printLocalDirectory(command[1]) 
-                    # Otherwise default to printing the local current dir
-                    else:
-                        client.printLocalDirectory(".")
+                if flag == "-l":
+                    match commandLen:
+                        case 2:
+                            client.printLocalDirectory(command[1])
+                        case 1:
+                            client.printLocalDirectory(".")
+                        case _:
+                            print("ls takes two arguments.")
+                elif flag == "-r":
+                    match commandLen:
+                        case 2:
+                            client.printRemoteDirectory(sftp, command[1])
+                        case 1:
+                            client.printRemoteDirectory(sftp, ".")
+                        case _:
+                            print("ls takes two arguments.")
+                else:
+                    print("Please specify a local or remote repository with -l or -r.")
 
             case "get":
                 if sftp == NoneType:
@@ -99,8 +89,29 @@ def menu(sftp):
                     else:
                         print("Please specify a destination path.")
                 else:
-                    if(command > 3): 
+                    if(commandLen == 3): 
                         client.getFile(sftp, command[1], command[2])
+                    else:
+                        print("Please specify a source and destination path.")
+
+            case "put":
+                flag = None
+                if ("-m" in command):
+                    flag = "-m"
+                    command.remove("-m")
+                commandLen = len(command)
+                
+                if (flag == "-m"):
+                    if (commandLen == 1):
+                        files = client.getMultipleList()
+                        dest = input("Enter the destination path: ")
+                        client.putMultiple(sftp, files, dest)
+                    else:
+                        files = command[1:-1]
+                        client.putMultiple(sftp, files, command[-1])
+                else:
+                    if (commandLen == 3):
+                        client.putFile(sftp, command[1], command[2])
                     else:
                         print("Please specify a source and destination path.")
 
