@@ -15,6 +15,7 @@ def menu(sftp):
                 if(commandLen > 1):
                     sftp = client.login(command[1])
                     client.printRemoteWorkingDirectory(sftp)
+                    serverHostName = command[1]
                 else:
                     print("Please input a server address.")
 
@@ -76,6 +77,10 @@ def menu(sftp):
                         client.printLocalDirectory(".")
 
             case "get":
+                if sftp == NoneType:
+                    print("Not logged into a remote server")
+                    continue
+
                 # if we have the -m flag then we are getting multiple
                 if("-m" in command):
                     command.remove("-m")
@@ -93,10 +98,14 @@ def menu(sftp):
 
             case "mv":
                 if("-r" in command):
+                    if sftp == NoneType:
+                            print("Not logged into a remote server")
+                            continue
+
                     command.remove("-r")
                     commandLen = len(command)
                     if(commandLen > 3):
-                        client.renameRemoteFile(command[1], command[2])
+                        client.renameRemoteFile(sftp, command[1], command[2])
                     else:
                         print("Please enter the source and destination file names.")
                 else:
@@ -107,13 +116,19 @@ def menu(sftp):
 
             case "xcopy":
                 if(commandLen > 2):
+                    if sftp == NoneType:
+                            print("Not logged into a remote server")
+                            continue
+
                     client.copyRemoteDir(sftp, command[1], command[2])
                 else:
                     print("Please specify a source and destination path in the form 'xcopy [source] [destination]'")
                     
             case "quit":
-                if sftp is not None: 
+                if sftp is not NoneType:
+                    print(f"Closed connection to {serverHostName}")
                     sftp.close()
+                    
                 quitLoop = True
 
             case "help":
