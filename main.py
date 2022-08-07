@@ -40,7 +40,7 @@ def menu(sftp):
                 # check if command had the -l flag for local
                 if(commandLen > 2):
                     if("-l" in command):
-                        command = command.remove("-l")
+                        command.remove("-l")
                         commandLen = len(command)
                         if(commandLen > 1):
                             client.printLocalDirectory(command[1])
@@ -102,6 +102,12 @@ def menu(sftp):
                     else:
                         print("Please enter the source and destination file names.")
 
+            case "xcopy":
+                if(commandLen > 2):
+                    client.copyRemoteDir(sftp, command[1], command[2])
+                else:
+                    print("Please specify a source and destination path in the form 'xcopy [source] [destination]'")
+                    
             case "quit":
                 if sftp is not None: 
                     sftp.close()

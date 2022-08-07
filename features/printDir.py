@@ -2,12 +2,14 @@ import os
 
 # Print contents of a directory on local machine at specified path
 def printLocalDirectory(path):
+    print("printing local dir")
     dir_list = os.listdir(path)
     for item in dir_list:
         print(item)
 
 # Print the contents of a directory on the remote host from the specified path
 def printRemoteDirectory(sftp, path):
+    print("printing remote directory")
     dirContents = sftp.listdir()
     for item in dirContents:
         print(item)
