@@ -22,17 +22,17 @@ def copyRemoteDir(sftp, source, destination):
 
     newDir = destination + "/" + dirName
     sftp.mkdir(newDir)
-    get_r_portable(sftp, source, newDir)
+    copyDir_r(sftp, source, newDir)
 
-
-def get_r_portable(sftp, source, newDir):
+# Recursively copies a remote directory
+def copyDir_r(sftp, source, newDir):
     for entry in sftp.listdir(source):
         sourceSubPath = source + "/" + entry
         newDirSubPath = newDir + "/" + entry
 
         if sftp.isdir(sourceSubPath):
             sftp.mkdir(newDirSubPath)
-            get_r_portable(sftp, sourceSubPath, newDirSubPath)
+            copyDir_r(sftp, sourceSubPath, newDirSubPath)
 
         elif sftp.isfile(sourceSubPath):
             flo = io.BytesIO()
