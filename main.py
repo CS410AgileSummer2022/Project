@@ -64,6 +64,10 @@ def menu(sftp):
                         case _:
                             print("ls takes two arguments.")
                 elif flag == "-r":
+                    if sftp == NoneType:
+                            print("Not logged into a remote server")
+                            continue
+
                     match commandLen:
                         case 2:
                             client.printRemoteDirectory(sftp, command[1])
@@ -125,6 +129,13 @@ def menu(sftp):
                     commandLen = len(command)
                     if(commandLen > 2):
                         client.renameRemoteFile(sftp, command[1], command[2])
+                    else:
+                        print("Please enter the full path to the file you'd like to rename and the name of the new file.")
+                elif("-l" in command):
+                    command.remove("-l")
+                    commandLen = len(command)
+                    if(commandLen > 2):
+                        client.renameLocalFile(sftp, command[1], command[2])
                     else:
                         print("Please enter the full path to the file you'd like to rename and the name of the new file.")
                 else:
