@@ -181,6 +181,7 @@ def menu(sftp):
                     client.copyRemoteDir(sftp, command[1], command[2])
                 else:
                     print("Please specify a source and destination path in the form 'xcopy [source] [destination]'")
+
             case "quit":
                 if sftp is not NoneType:
                     print(f"Closed connection to {serverHostName}")
@@ -189,7 +190,19 @@ def menu(sftp):
                 quitLoop = True
 
             case "help":
-                print("COMING SOON!")
+                print(
+                "login: Log in to a remote server.\n"
+                "logoff: Log off of the remote server.\n"
+                "mkdir: Make a directory on the remote server.\n"
+                "chmod: Change permissions of a file on the remote server.\n"
+                "ls <-l / -r>: List the contents of a directory on the <local / remote> machine.\n"
+                "get <-m>: Get <multiple> files from the remote server and move them to the local machine.\n"
+                "put <-m>: Put <multiple> files on the remote server from the local machine.\n"
+                "mv <-l / -r>: Move files <locally / remotely>.\n"
+                "search <-l / -r>: Search for a file on the <local / remote> machine.\n"
+                "xcopy: Copy a file or folder on the remote server."
+                )
+
             case _:
                 print("Command not recognized, try \'help\' to see what commands are available.")
 
