@@ -128,6 +128,10 @@ def menu(sftp):
 
                 locations = None
                 if flag == "-l":
+                    # Due to the way commands are handled,
+                    # filenames CANNOT contain spaces if they're entered at the command level.
+                    # That's basically unacceptable (in my opinion),
+                    # so as a workaround, filenames are entered inside the command logic instead.
                     filename = input("Enter the name of the file you wish to search for: ")
                     path = input("Enter the path you wish to search in: ") 
                     locations = client.localSearch(filename, path)
