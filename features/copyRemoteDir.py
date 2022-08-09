@@ -2,7 +2,7 @@ import io
 
 def copyRemoteDir(sftp, source, destination):
     if not sftp.exists(source) or not sftp.exists(destination):
-        print("One of the specified paths does not exists.")
+        print("One of the specified paths does not exist.")
         return
 
     if not sftp.isdir(source):
