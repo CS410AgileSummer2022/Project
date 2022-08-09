@@ -140,7 +140,6 @@ def menu(sftp):
                     for location in locations:
                         print("Found at", location)
 
-
             case "quit":
                 if sftp is not None: 
                     sftp.close()
