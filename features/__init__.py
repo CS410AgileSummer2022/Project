@@ -6,8 +6,9 @@ class SFTP():
     from .putFile import putFile, putMultiple
     from .makeDir import makeDir
     from .printDir import printLocalDirectory, printRemoteDirectory, printRemoteWorkingDirectory
-    from .rename import renameLocalFile
     from .search import localSearch
+    from .rename import renameLocalFile, renameRemoteFile
+    from .copyRemoteDir import copyRemoteDir
 
     login = staticmethod(login)
     chmod = staticmethod(chmod)
@@ -22,3 +23,6 @@ class SFTP():
     printRemoteWorkingDirectory = staticmethod(printRemoteWorkingDirectory)
     rename = staticmethod(renameLocalFile)
     localSearch = staticmethod(localSearch)
+    renameLocalFile = staticmethod(renameLocalFile)
+    renameRemoteFile = staticmethod(renameRemoteFile)
+    copyRemoteDir = staticmethod(copyRemoteDir)
