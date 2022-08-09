@@ -116,6 +116,31 @@ def menu(sftp):
                     else:
                         print("Please enter the source and destination file names.")
 
+            case "search":
+                flag = None
+                if ("-l" in command): 
+                    command.remove("-l")
+                    flag = "-l"
+                elif ("-r" in command):
+                    command.remove("-r")
+                    flag = "-r"
+                commandLen = len(command)
+
+                locations = None
+                if flag == "-l":
+                    filename = input("Enter the name of the file you wish to search for: ")
+                    path = input("Enter the path you wish to search in: ") 
+                    locations = client.localSearch(filename, path)
+                elif flag == "-r":
+                    print("not yet implemented - sit tight!")
+                else:
+                    print("Please specify a local or remote search with -l or -r.")
+
+                if locations:
+                    for location in locations:
+                        print("Found at", location)
+
+
             case "quit":
                 if sftp is not None: 
                     sftp.close()
