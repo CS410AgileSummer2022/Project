@@ -144,6 +144,34 @@ def menu(sftp):
                     else:
                         print("Please enter the full path to the file you'd like to rename and the name of the new file.")
 
+            case "search":
+                flag = None
+                if ("-l" in command): 
+                    command.remove("-l")
+                    flag = "-l"
+                elif ("-r" in command):
+                    command.remove("-r")
+                    flag = "-r"
+                commandLen = len(command)
+
+                locations = None
+                if flag == "-l":
+                    # Due to the way commands are handled,
+                    # filenames CANNOT contain spaces if they're entered at the command level.
+                    # That's basically unacceptable (in my opinion),
+                    # so as a workaround, filenames are entered inside the command logic instead.
+                    filename = input("Enter the name of the file you wish to search for: ")
+                    path = input("Enter the path you wish to search in: ") 
+                    locations = client.localSearch(filename, path)
+                elif flag == "-r":
+                    print("not yet implemented - sit tight!")
+                else:
+                    print("Please specify a local or remote search with -l or -r.")
+
+                if locations:
+                    for location in locations:
+                        print("Found at", location)
+                        
             case "xcopy":
                 if(commandLen > 2):
                     if sftp == NoneType:
@@ -153,7 +181,7 @@ def menu(sftp):
                     client.copyRemoteDir(sftp, command[1], command[2])
                 else:
                     print("Please specify a source and destination path in the form 'xcopy [source] [destination]'")
-                    
+
             case "quit":
                 if sftp is not NoneType:
                     print(f"Closed connection to {serverHostName}")
@@ -162,7 +190,19 @@ def menu(sftp):
                 quitLoop = True
 
             case "help":
-                print("COMING SOON!")
+                print(
+                "login: Log in to a remote server.\n"
+                "logoff: Log off of the remote server.\n"
+                "mkdir: Make a directory on the remote server.\n"
+                "chmod: Change permissions of a file on the remote server.\n"
+                "ls <-l / -r>: List the contents of a directory on the <local / remote> machine.\n"
+                "get <-m>: Get <multiple> files from the remote server and move them to the local machine.\n"
+                "put <-m>: Put <multiple> files on the remote server from the local machine.\n"
+                "mv <-l / -r>: Move files <locally / remotely>.\n"
+                "search <-l / -r>: Search for a file on the <local / remote> machine.\n"
+                "xcopy: Copy a file or folder on the remote server."
+                )
+
             case _:
                 print("Command not recognized, try \'help\' to see what commands are available.")
 
